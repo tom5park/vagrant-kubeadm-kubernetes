@@ -1,10 +1,16 @@
 Vagrant.configure("2") do |config|
-    config.vm.provision "shell", inline: <<-SHELL
+
+    config.vm.provision "shell" do |s|
+      ssh_pub_key = File.readlines("#{Dir.home}/.ssh/id_rsa.pub").first.strip
+      s.inline = <<-SHELL
+        echo #{ssh_pub_key} >> /home/vagrant/.ssh/authorized_keys
+        echo #{ssh_pub_key} >> /root/.ssh/authorized_keys
         apt-get update -y
         echo "10.1.1.71  master-node" >> /etc/hosts
         echo "10.1.1.72  worker-node01" >> /etc/hosts
         echo "10.1.1.72  worker-node02" >> /etc/hosts
-    SHELL
+      SHELL
+    end
 
     config.vm.define "master" do |master|
       master.vm.box = "bento/ubuntu-18.04"
